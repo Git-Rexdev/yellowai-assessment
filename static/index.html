@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendly Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <meta name="description" content="Trendly AI-powered customer support chat">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="brand">
+                <span class="sparkle-icon">✨</span>
+                <h1>Trendly Support</h1>
+            </div>
+            <div class="customer-selector-container">
+                <select id="customer-selector" aria-label="Select Customer">
+                    <option value="" disabled selected>Loading customers...</option>
+                </select>
+            </div>
+        </header>
+
+        <div id="escalation-banner" class="escalation-banner hidden">
+            This conversation has been transferred to a human agent
+        </div>
+
+        <main class="chat-area" id="chat-area">
+            <!-- Messages will appear here -->
+        </main>
+
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button" aria-label="Send Message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <template id="typing-template">
+        <div class="message agent-message typing-indicator-container">
+            <div class="message-bubble glass-card">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
