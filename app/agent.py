@@ -81,11 +81,26 @@ class TrendlyAgent:
                     messages=session.messages,
                     tools=TOOL_SCHEMAS,
                     tool_choice="auto",
-                    temperature=0.3,
+                    temperature=0.2,
                     max_tokens=1024,
                 )
             except Exception as e:
-                logger.error(f"Groq API error: {e}")
+                err_str = str(e)
+                logger.error(f"Groq API error: {err_str}")
+                if "tool_use_failed" in err_str or "Failed to call a function" in err_str:
+                    # Retry turn without tools if tool formatting failed
+                    try:
+                        fallback_resp = self.client.chat.completions.create(
+                            model=self.model,
+                            messages=session.messages,
+                            temperature=0.3,
+                            max_tokens=1024,
+                        )
+                        response_text = fallback_resp.choices[0].message.content or ""
+                        session.add_assistant_message(response_text)
+                        return {"response": response_text, "escalated": session.escalated, "tool_calls": tool_calls_log}
+                    except Exception as inner_e:
+                        logger.error(f"Fallback completion error: {inner_e}")
                 return {
                     "response": "I'm sorry, I'm experiencing a technical issue right now. Please try again in a moment, or I can connect you with a human agent.",
                     "escalated": False,

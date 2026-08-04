@@ -6,7 +6,7 @@ AI-powered customer support agent for Trendly, an Indian D2C fashion retailer. H
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/Git-Rexdev/yellowai-assessment.git
+   git clone https://github.com/Git-Rexdev/yellowai-assessment.githttps://github.com/Git-Rexdev/yellowai-assessment.git
    cd yellowai-assessment
    ```
 2. Create and activate virtual environment:

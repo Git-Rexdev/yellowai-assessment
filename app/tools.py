@@ -574,7 +574,11 @@ TOOL_SCHEMAS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "topic": {"type": "string", "description": "The topic to look up (e.g., 'shipping charges', 'return window', 'refund timeline', 'exchange policy', 'damaged item')"},
+                    "topic": {
+                        "type": "string",
+                        "enum": ["shipping", "returns", "refunds", "exchanges", "return_pickup", "damaged_wrong", "restrictions"],
+                        "description": "The topic section to look up.",
+                    },
                 },
                 "required": ["topic"],
             },
