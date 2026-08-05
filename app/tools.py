@@ -134,7 +134,25 @@ def _format_currency(amount: int) -> str:
 
 # --- Tool implementations ---
 
+def list_customer_orders(customer_id: str) -> str:
+    orders = get_orders_for_customer(customer_id)
+    if not orders:
+        return json.dumps({"success": True, "count": 0, "orders": [], "message": "No orders found under this account."})
+
+    summary = []
+    for o in orders:
+        summary.append({
+            "order_id": o["order_id"],
+            "status": o["status"],
+            "placed_at": o["placed_at"],
+            "total": _format_currency(o["total"]),
+            "items_count": len(o.get("items", []))
+        })
+    return json.dumps({"success": True, "count": len(summary), "orders": summary})
+
+
 def lookup_order(order_id: str, customer_id: str) -> str:
+
     if not validate_order_ownership(order_id, customer_id):
         return json.dumps({"success": False, "error": "Order not found under this customer's account. Please double-check the order number."})
 
@@ -605,6 +623,20 @@ TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
+            "name": "list_customer_orders",
+            "description": "List all orders belonging to the customer. Call this whenever the customer asks for a list of their orders or how many orders they have.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "customer_id": {"type": "string", "description": "The customer ID to retrieve orders for"},
+                },
+                "required": ["customer_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_delayed_order_credit",
             "description": "Apply the Rs.250 store credit for a delayed order (per policy 1.5). Only valid for orders delayed more than 3 business days past expected delivery.",
             "parameters": {
@@ -621,6 +653,7 @@ TOOL_SCHEMAS = [
 
 
 TOOL_REGISTRY: dict[str, callable] = {
+    "list_customer_orders": list_customer_orders,
     "lookup_order": lookup_order,
     "check_return_eligibility": check_return_eligibility,
     "check_exchange_eligibility": check_exchange_eligibility,

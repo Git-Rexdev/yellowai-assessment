@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('send-button');
     const escalationBanner = document.getElementById('escalation-banner');
     const typingTemplate = document.getElementById('typing-template');
+    const suggestionChips = document.getElementById('suggestion-chips');
 
     let currentSessionId = generateUUID();
     let isEscalated = false;
@@ -21,6 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
     });
+
+    if (suggestionChips) {
+        suggestionChips.addEventListener('click', (e) => {
+            const chip = e.target.closest('.chip');
+            if (chip && chip.dataset.query) {
+                messageInput.value = chip.dataset.query;
+                sendMessage();
+            }
+        });
+    }
 
     async function fetchCustomers() {
         try {
@@ -39,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function populateCustomerDropdown(customers) {
-        customerSelector.innerHTML = '<option value="" disabled selected>Select Customer</option>';
+        customerSelector.innerHTML = '<option value="" disabled selected>Select Customer Account</option>';
         customers.forEach(c => {
             const option = document.createElement('option');
             option.value = c.customer_id;
-            option.textContent = c.name;
+            option.textContent = `${c.name} (${c.customer_id})`;
             customerSelector.appendChild(option);
         });
         
@@ -56,13 +67,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetChat() {
         currentSessionId = generateUUID();
         isEscalated = false;
-        chatArea.innerHTML = '';
+        chatArea.innerHTML = `
+            <div class="welcome-card" id="welcome-card">
+                <div class="welcome-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <h2>How can we help today?</h2>
+                <p>Ask anything about your orders, returns, shipping estimates, or store policy.</p>
+            </div>
+        `;
         escalationBanner.classList.add('hidden');
         messageInput.disabled = false;
         sendButton.disabled = false;
         messageInput.value = '';
         messageInput.placeholder = "Type your message...";
         messageInput.focus();
+        
+        if (suggestionChips) {
+            suggestionChips.style.display = 'flex';
+        }
     }
 
     async function sendMessage() {
@@ -72,6 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerId = customerSelector.value;
         
         if (!text || !customerId) return;
+
+        if (suggestionChips) {
+            suggestionChips.style.display = 'none';
+        }
 
         addMessageToUI('user', text);
         messageInput.value = '';
@@ -112,14 +141,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMessageToUI(sender, text) {
+        const welcomeCard = document.getElementById('welcome-card');
+        if (welcomeCard) {
+            welcomeCard.remove();
+        }
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
+
+        if (sender === 'agent') {
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar-sm';
+            avatar.textContent = 'T';
+            messageDiv.appendChild(avatar);
+        }
         
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
         
         if (sender === 'agent') {
-            bubble.classList.add('glass-card');
             bubble.innerHTML = parseMarkdown(text);
         } else {
             bubble.textContent = text;
@@ -151,43 +191,23 @@ document.addEventListener('DOMContentLoaded', () => {
         escalationBanner.classList.remove('hidden');
         messageInput.disabled = true;
         sendButton.disabled = true;
-        messageInput.placeholder = "Conversation transferred...";
+        messageInput.placeholder = "Conversation transferred to human agent...";
     }
 
     function parseMarkdown(text) {
         if (!text) return '';
         
-        let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
-        const lines = html.split('\n');
-        let inList = false;
-        let result = [];
-        
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (line.startsWith('- ') || line.startsWith('* ')) {
-                if (!inList) {
-                    result.push('<ul>');
-                    inList = true;
-                }
-                result.push(`<li>${line.substring(2)}</li>`);
-            } else {
-                if (inList) {
-                    result.push('</ul>');
-                    inList = false;
-                }
-                if (line) {
-                    result.push(`<p>${line}</p>`);
-                }
+        if (typeof marked !== 'undefined' && marked.parse) {
+            try {
+                return marked.parse(text);
+            } catch (e) {
+                console.error('Marked parsing error:', e);
             }
         }
         
-        if (inList) {
-            result.push('</ul>');
-        }
-        
-        return result.join('');
+        let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return html;
     }
 
     function generateUUID() {

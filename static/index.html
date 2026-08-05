@@ -3,49 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendly Support</title>
+    <title>Trendly Care • Customer Support</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <meta name="description" content="Trendly AI-powered customer support chat">
+    <meta name="description" content="Trendly AI-Powered Customer Support Assistant">
 </head>
 <body>
     <div class="chat-container">
         <header class="chat-header">
             <div class="brand">
-                <span class="sparkle-icon">✨</span>
-                <h1>Trendly Support</h1>
+                <div class="brand-avatar">
+                    <span>T</span>
+                    <span class="status-dot"></span>
+                </div>
+                <div class="brand-info">
+                    <h1>Trendly Care</h1>
+                    <span class="status-text">
+                        <span class="pulse-indicator"></span>
+                        AI Support Assistant
+                    </span>
+                </div>
             </div>
             <div class="customer-selector-container">
-                <select id="customer-selector" aria-label="Select Customer">
-                    <option value="" disabled selected>Loading customers...</option>
+                <select id="customer-selector" aria-label="Select Customer Account">
+                    <option value="" disabled selected>Loading account...</option>
                 </select>
             </div>
         </header>
 
         <div id="escalation-banner" class="escalation-banner hidden">
-            This conversation has been transferred to a human agent
+            <div class="escalation-content">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>Transferred to Human Support Specialist</span>
+            </div>
         </div>
 
         <main class="chat-area" id="chat-area">
-            <!-- Messages will appear here -->
+            <div class="welcome-card" id="welcome-card">
+                <div class="welcome-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <h2>How can we help today?</h2>
+                <p>Ask anything about your orders, returns, shipping estimates, or store policy.</p>
+            </div>
         </main>
 
-        <div class="input-area">
-            <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
-            <button id="send-button" aria-label="Send Message">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
+        <div class="suggestion-chips" id="suggestion-chips">
+            <button class="chip" data-query="What are my active orders?">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                My Orders
             </button>
+            <button class="chip" data-query="How do returns work?">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                Return Policy
+            </button>
+            <button class="chip" data-query="When will my order arrive?">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                Delivery Estimates
+            </button>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
+                <button id="send-button" aria-label="Send Message">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
     
     <template id="typing-template">
         <div class="message agent-message typing-indicator-container">
-            <div class="message-bubble glass-card">
+            <div class="avatar-sm">T</div>
+            <div class="message-bubble">
                 <div class="typing-indicator">
                     <span></span>
                     <span></span>
@@ -55,6 +93,8 @@
         </div>
     </template>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/static/app.js"></script>
 </body>
 </html>
+

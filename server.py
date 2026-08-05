@@ -13,8 +13,8 @@ from app.data import get_all_customers
 
 load_dotenv()
 
-API_KEY = os.getenv("GROQ_API_KEY", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
+API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GROQ_API_KEY", ""))
+MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
 PORT = int(os.getenv("PORT", "8000"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -27,7 +27,7 @@ agent: TrendlyAgent = None
 async def lifespan(app: FastAPI):
     global agent
     if not API_KEY:
-        logger.warning("GROQ_API_KEY is not set. Chat will fail. Create a .env file with your key (see .env.example).")
+        logger.warning("GEMINI_API_KEY is not set. Chat will fail. Create a .env file with your key (see .env.example).")
     agent = TrendlyAgent(api_key=API_KEY, model=MODEL_NAME)
     logger.info(f"Trendly Agent started with model={MODEL_NAME}")
     yield
@@ -75,7 +75,7 @@ async def chat(request: ChatRequest):
     if agent is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
     if not API_KEY:
-        raise HTTPException(status_code=503, detail="GROQ_API_KEY is not configured. Please set it in your .env file.")
+        raise HTTPException(status_code=503, detail="GEMINI_API_KEY is not configured. Please set it in your .env file.")
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     if not request.customer_id:

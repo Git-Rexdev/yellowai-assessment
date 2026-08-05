@@ -1,6 +1,6 @@
 import json
 import logging
-from groq import Groq
+from openai import OpenAI
 
 from app.prompts import build_system_message, build_customer_context_message
 from app.tools import TOOL_SCHEMAS, execute_tool
@@ -37,10 +37,14 @@ class ConversationSession:
 
 
 class TrendlyAgent:
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
-        self.client = Groq(api_key=api_key)
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        )
         self.model = model
         self.sessions: dict[str, ConversationSession] = {}
+
 
     def get_or_create_session(self, session_id: str, customer_id: str) -> ConversationSession:
         if session_id not in self.sessions:
@@ -86,7 +90,7 @@ class TrendlyAgent:
                 )
             except Exception as e:
                 err_str = str(e)
-                logger.error(f"Groq API error: {err_str}")
+                logger.error(f"Gemini API error: {err_str}")
                 if "tool_use_failed" in err_str or "Failed to call a function" in err_str:
                     # Retry turn without tools if tool formatting failed
                     try:
@@ -111,18 +115,12 @@ class TrendlyAgent:
             message = choice.message
 
             if message.tool_calls:
-                session.messages.append({
-                    "role": "assistant",
-                    "content": message.content or "",
-                    "tool_calls": [
-                        {
-                            "id": tc.id,
-                            "type": "function",
-                            "function": {"name": tc.function.name, "arguments": tc.function.arguments},
-                        }
-                        for tc in message.tool_calls
-                    ],
-                })
+                msg_dict = message.model_dump(exclude_none=True)
+                # Ensure content field exists even if empty string for OpenAI compatibility
+                if "content" not in msg_dict:
+                    msg_dict["content"] = ""
+                session.messages.append(msg_dict)
+
 
                 for tool_call in message.tool_calls:
                     fn_name = tool_call.function.name
