@@ -8,13 +8,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from app.agent import TrendlyAgent
+from app.agent import TrendlyAgent, get_llm_client_config
 from app.data import get_all_customers
 
 load_dotenv()
 
-API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GROQ_API_KEY", ""))
-MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
 PORT = int(os.getenv("PORT", "8000"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -26,10 +24,11 @@ agent: TrendlyAgent = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global agent
-    if not API_KEY:
-        logger.warning("GEMINI_API_KEY is not set. Chat will fail. Create a .env file with your key (see .env.example).")
-    agent = TrendlyAgent(api_key=API_KEY, model=MODEL_NAME)
-    logger.info(f"Trendly Agent started with model={MODEL_NAME}")
+    agent = TrendlyAgent()
+    if not agent.api_key:
+        logger.warning("No API key configured. Set OPENAI_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY in your .env file.")
+    else:
+        logger.info(f"Trendly Agent started with provider={agent.provider}, model={agent.model}")
     yield
     logger.info("Trendly Agent shutting down")
 
@@ -62,7 +61,10 @@ async def serve_ui():
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "model": MODEL_NAME, "api_key_set": bool(API_KEY)}
+    provider = agent.provider if agent else "none"
+    model = agent.model if agent else "none"
+    api_key_set = bool(agent and agent.api_key)
+    return {"status": "healthy", "provider": provider, "model": model, "api_key_set": api_key_set}
 
 
 @app.get("/api/customers")
@@ -74,8 +76,8 @@ async def list_customers():
 async def chat(request: ChatRequest):
     if agent is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
-    if not API_KEY:
-        raise HTTPException(status_code=503, detail="GEMINI_API_KEY is not configured. Please set it in your .env file.")
+    if not agent.api_key:
+        raise HTTPException(status_code=503, detail="No API key is configured. Set OPENAI_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY in your .env file.")
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     if not request.customer_id:
