@@ -19,10 +19,17 @@
     --radius-pill: 9999px;
 }
 
-* {
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
 }
 
 body {
@@ -32,7 +39,10 @@ body {
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 255, 255, 0.04), transparent 100%),
         radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.02), transparent 50%);
     color: var(--text-primary);
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -41,10 +51,12 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base Responsive Container */
 .chat-container {
     width: 100%;
-    max-width: 660px;
+    max-width: 680px;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     background: var(--bg-surface);
@@ -54,17 +66,12 @@ body {
     overflow: hidden;
 }
 
-@media (min-width: 640px) {
-    .chat-container {
-        height: 88vh;
-        max-height: 820px;
-        border-radius: var(--radius-xl);
-    }
-}
-
-/* Header */
+/* ==========================================================================
+   1. Header Component
+   ========================================================================== */
 .chat-header {
-    padding: 16px 20px;
+    padding: clamp(12px, 2vh, 16px) clamp(14px, 3vw, 20px);
+    padding-top: max(clamp(12px, 2vh, 16px), env(safe-area-inset-top));
     border-bottom: 1px solid var(--border-subtle);
     display: flex;
     justify-content: space-between;
@@ -73,57 +80,78 @@ body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     z-index: 10;
+    gap: clamp(8px, 2vw, 14px);
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: clamp(8px, 2vw, 12px);
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .brand-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
+    width: clamp(32px, 5vw, 38px);
+    height: clamp(32px, 5vw, 38px);
+    border-radius: clamp(8px, 1.5vw, 11px);
     background: #1f1f23;
     border: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: clamp(0.82rem, 2.5vw, 0.95rem);
     color: #ffffff;
     position: relative;
     letter-spacing: -0.5px;
+    flex-shrink: 0;
+}
+
+.brand-avatar span:not(.status-dot) {
+    line-height: 1;
 }
 
 .status-dot {
     position: absolute;
     bottom: -2px;
     right: -2px;
-    width: 10px;
-    height: 10px;
+    width: clamp(8px, 1.5vw, 10px);
+    height: clamp(8px, 1.5vw, 10px);
     background-color: #10b981;
     border: 2px solid var(--bg-surface);
     border-radius: 50%;
 }
 
+.brand-info {
+    min-width: 0;
+    flex-shrink: 1;
+}
+
 .brand-info h1 {
-    font-size: 0.98rem;
+    font-size: clamp(0.85rem, 2.8vw, 0.98rem);
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.2;
     letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .status-text {
-    font-size: 0.75rem;
+    font-size: clamp(0.68rem, 2vw, 0.75rem);
     color: var(--text-secondary);
     font-weight: 400;
     display: flex;
     align-items: center;
     gap: 6px;
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pulse-indicator {
@@ -133,26 +161,31 @@ body {
     background-color: #10b981;
     display: inline-block;
     box-shadow: 0 0 8px #10b981;
+    flex-shrink: 0;
 }
 
 /* Customer Selector */
 .customer-selector-container {
     position: relative;
+    flex-shrink: 0;
+    max-width: 45%;
 }
 
 #customer-selector {
     appearance: none;
+    -webkit-appearance: none;
     background: #18181b;
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
-    padding: 8px 32px 8px 14px;
+    padding: 7px 28px 7px 12px;
     border-radius: var(--radius-md);
     font-family: inherit;
-    font-size: 0.82rem;
+    font-size: clamp(0.75rem, 2.2vw, 0.82rem);
     font-weight: 500;
     outline: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 100%;
     max-width: 180px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -177,7 +210,7 @@ body {
 .customer-selector-container::after {
     content: '';
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
@@ -188,12 +221,16 @@ body {
     pointer-events: none;
 }
 
-/* Escalation Banner */
+/* ==========================================================================
+   2. Escalation Banner Component
+   ========================================================================== */
 .escalation-banner {
     background: rgba(239, 68, 68, 0.08);
     border-bottom: 1px solid rgba(239, 68, 68, 0.18);
     padding: 10px 16px;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .escalation-content {
@@ -202,34 +239,44 @@ body {
     justify-content: center;
     gap: 8px;
     color: #fca5a5;
-    font-size: 0.8rem;
+    font-size: clamp(0.74rem, 2.2vw, 0.8rem);
     font-weight: 500;
+    text-align: center;
+    word-break: break-word;
+}
+
+.escalation-content svg {
+    flex-shrink: 0;
 }
 
 .escalation-banner.hidden {
     display: none;
 }
 
-/* Chat Area */
+/* ==========================================================================
+   3. Main Chat Area Component
+   ========================================================================== */
 .chat-area {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 24px;
+    padding: clamp(14px, 3vw, 20px) clamp(14px, 3.5vw, 24px);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: clamp(12px, 2.5vw, 16px);
     background: var(--bg-chat);
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 .chat-area::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
 }
 .chat-area::-webkit-scrollbar-track {
     background: transparent;
 }
 .chat-area::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 4px;
 }
 
@@ -237,19 +284,20 @@ body {
 .welcome-card {
     text-align: center;
     margin: auto 0;
-    padding: 32px 20px;
+    padding: clamp(20px, 4vh, 36px) clamp(14px, 4vw, 24px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
     animation: fadeIn 0.4s ease-out;
+    width: 100%;
 }
 
 .welcome-badge {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+    width: clamp(38px, 6vw, 44px);
+    height: clamp(38px, 6vw, 44px);
+    border-radius: clamp(10px, 2vw, 14px);
     background: #18181b;
     border: 1px solid var(--border-subtle);
     display: flex;
@@ -257,28 +305,37 @@ body {
     justify-content: center;
     color: var(--text-primary);
     margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.welcome-badge svg {
+    width: clamp(18px, 3.5vw, 22px);
+    height: clamp(18px, 3.5vw, 22px);
 }
 
 .welcome-card h2 {
-    font-size: 1.1rem;
+    font-size: clamp(0.98rem, 3.2vw, 1.15rem);
     font-weight: 600;
     color: var(--text-primary);
     letter-spacing: -0.3px;
 }
 
 .welcome-card p {
-    font-size: 0.85rem;
+    font-size: clamp(0.78rem, 2.5vw, 0.85rem);
     color: var(--text-muted);
-    max-width: 360px;
+    max-width: 380px;
+    width: 100%;
     line-height: 1.5;
 }
 
-/* Messages */
+/* ==========================================================================
+   4. Message Bubbles & Markdown Formatting
+   ========================================================================== */
 .message {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    max-width: 85%;
+    gap: clamp(8px, 2vw, 10px);
+    max-width: 88%;
     animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -297,15 +354,15 @@ body {
 }
 
 .avatar-sm {
-    width: 28px;
-    height: 28px;
+    width: clamp(26px, 4vw, 28px);
+    height: clamp(26px, 4vw, 28px);
     border-radius: 8px;
     background: #18181b;
     border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
+    font-size: clamp(0.68rem, 2vw, 0.72rem);
     font-weight: 700;
     color: var(--text-primary);
     flex-shrink: 0;
@@ -313,11 +370,13 @@ body {
 }
 
 .message-bubble {
-    padding: 12px 16px;
+    padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 16px);
     border-radius: var(--radius-lg);
-    font-size: 0.88rem;
+    font-size: clamp(0.82rem, 2.4vw, 0.88rem);
     line-height: 1.55;
     word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
 }
 
 .user-message .message-bubble {
@@ -335,12 +394,12 @@ body {
     border-top-left-radius: 3px;
 }
 
-/* Formatted Markdown inside Agent Message */
+/* Comprehensive Markdown Element Support */
 .agent-message .message-bubble h1,
 .agent-message .message-bubble h2,
 .agent-message .message-bubble h3,
 .agent-message .message-bubble h4 {
-    font-size: 0.92rem;
+    font-size: clamp(0.86rem, 2.5vw, 0.92rem);
     font-weight: 600;
     color: var(--text-primary);
     margin: 12px 0 6px 0;
@@ -367,10 +426,16 @@ body {
     font-weight: 600;
 }
 
+.agent-message .message-bubble a {
+    color: #60a5fa;
+    text-decoration: underline;
+    word-break: break-all;
+}
+
 .agent-message .message-bubble ul,
 .agent-message .message-bubble ol {
     margin: 8px 0;
-    padding-left: 20px;
+    padding-left: clamp(16px, 4vw, 20px);
 }
 
 .agent-message .message-bubble li {
@@ -385,6 +450,66 @@ body {
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     font-size: 0.82em;
     border: 1px solid rgba(255, 255, 255, 0.06);
+    word-break: break-word;
+}
+
+.agent-message .message-bubble pre {
+    background: rgba(0, 0, 0, 0.35);
+    padding: clamp(8px, 2vw, 12px);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: 8px 0;
+    max-width: 100%;
+    border: 1px solid var(--border-subtle);
+    -webkit-overflow-scrolling: touch;
+}
+
+.agent-message .message-bubble pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    font-size: 0.8em;
+    white-space: pre;
+    word-break: normal;
+}
+
+.agent-message .message-bubble blockquote {
+    border-left: 3px solid var(--border-hover);
+    padding-left: 10px;
+    margin: 8px 0;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 6px 6px 0;
+}
+
+.agent-message .message-bubble table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: clamp(0.76rem, 2vw, 0.82rem);
+    -webkit-overflow-scrolling: touch;
+}
+
+.agent-message .message-bubble th,
+.agent-message .message-bubble td {
+    padding: 6px 10px;
+    border: 1px solid var(--border-subtle);
+    text-align: left;
+}
+
+.agent-message .message-bubble th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+}
+
+.agent-message .message-bubble img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin: 8px 0;
+    object-fit: contain;
 }
 
 .agent-message .message-bubble hr {
@@ -393,14 +518,20 @@ body {
     margin: 12px 0;
 }
 
-/* Suggestion Chips */
+/* ==========================================================================
+   5. Suggestion Chips Component
+   ========================================================================== */
 .suggestion-chips {
     display: flex;
-    gap: 8px;
-    padding: 12px 20px;
+    gap: clamp(6px, 1.5vw, 8px);
+    padding: clamp(8px, 1.8vh, 12px) clamp(14px, 3.5vw, 20px);
     background: var(--bg-surface);
     overflow-x: auto;
     border-top: 1px solid var(--border-subtle);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .suggestion-chips::-webkit-scrollbar {
@@ -411,9 +542,9 @@ body {
     background: #18181b;
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
-    padding: 7px 14px;
+    padding: clamp(6px, 1.2vh, 8px) clamp(10px, 2.5vw, 14px);
     border-radius: var(--radius-pill);
-    font-size: 0.78rem;
+    font-size: clamp(0.72rem, 2vw, 0.78rem);
     font-family: inherit;
     font-weight: 500;
     cursor: pointer;
@@ -422,11 +553,17 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
+    min-height: 34px;
+    touch-action: manipulation;
 }
 
 .chip svg {
     color: var(--text-muted);
     transition: color 0.2s ease;
+    flex-shrink: 0;
+    width: clamp(12px, 2vw, 14px);
+    height: clamp(12px, 2vw, 14px);
 }
 
 .chip:hover {
@@ -440,7 +577,9 @@ body {
     color: var(--text-primary);
 }
 
-/* Typing Indicator */
+/* ==========================================================================
+   6. Typing Indicator Component
+   ========================================================================== */
 .typing-indicator {
     display: flex;
     gap: 5px;
@@ -464,11 +603,16 @@ body {
     40% { opacity: 1; transform: scale(1.1); background-color: var(--text-primary); }
 }
 
-/* Input Area */
+/* ==========================================================================
+   7. Input Area Component
+   ========================================================================== */
 .input-area {
-    padding: 16px 20px;
+    padding: clamp(10px, 2vh, 16px) clamp(14px, 3.5vw, 20px);
+    padding-bottom: max(clamp(10px, 2vh, 16px), env(safe-area-inset-bottom));
     background: var(--bg-surface);
     border-top: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .input-wrapper {
@@ -478,8 +622,9 @@ body {
     background: #18181b;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 4px 6px 4px 16px;
+    padding: 4px 6px 4px clamp(12px, 3vw, 16px);
     transition: all 0.2s ease;
+    width: 100%;
 }
 
 .input-wrapper:focus-within {
@@ -494,9 +639,11 @@ body {
     border: none;
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: 16px; /* Base 16px prevents mobile iOS auto-zoom */
     outline: none;
-    padding: 10px 0;
+    padding: clamp(8px, 1.5vh, 10px) 0;
+    min-width: 0;
+    width: 100%;
 }
 
 #message-input::placeholder {
@@ -514,6 +661,8 @@ body {
     border-radius: 10px;
     width: 36px;
     height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -521,6 +670,12 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    touch-action: manipulation;
+}
+
+#send-button svg {
+    width: 16px;
+    height: 16px;
 }
 
 #send-button:hover:not(:disabled) {
@@ -536,4 +691,116 @@ body {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-muted);
     cursor: not-allowed;
+}
+
+/* ==========================================================================
+   8. Specific Responsive Breakpoints
+   ========================================================================== */
+
+/* Large Desktop Screens (> 1024px) */
+@media (min-width: 1024px) {
+    .chat-container {
+        max-width: 720px;
+        height: 85vh;
+        max-height: 860px;
+        border-radius: var(--radius-xl);
+    }
+
+    #message-input {
+        font-size: 0.88rem;
+    }
+}
+
+/* Tablets & Small Laptops (640px to 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .chat-container {
+        height: 90vh;
+        max-height: 820px;
+        border-radius: var(--radius-xl);
+    }
+
+    #message-input {
+        font-size: 0.88rem;
+    }
+}
+
+/* Mobile Screens (< 640px) */
+@media (max-width: 639px) {
+    .chat-container {
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+        max-width: 100%;
+    }
+
+    .message {
+        max-width: 92%;
+    }
+}
+
+/* Small Mobile Screens (< 480px) */
+@media (max-width: 480px) {
+    .customer-selector-container {
+        max-width: 140px;
+    }
+
+    #customer-selector {
+        padding-right: 24px;
+    }
+
+    .message {
+        max-width: 95%;
+    }
+}
+
+/* Ultra Small Mobile Screens (< 340px - e.g. folded Galaxy Fold) */
+@media (max-width: 340px) {
+    .brand-info h1 {
+        font-size: 0.8rem;
+    }
+
+    .status-text {
+        font-size: 0.65rem;
+    }
+
+    .customer-selector-container {
+        max-width: 110px;
+    }
+
+    #customer-selector {
+        font-size: 0.72rem;
+        padding: 5px 20px 5px 6px;
+    }
+
+    .customer-selector-container::after {
+        right: 6px;
+    }
+}
+
+/* Short Height / Mobile Landscape Viewports (< 550px height) */
+@media (max-height: 550px) {
+    .chat-header {
+        padding-top: max(8px, env(safe-area-inset-top));
+        padding-bottom: 8px;
+    }
+
+    .welcome-card {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .welcome-badge {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 0;
+    }
+
+    .suggestion-chips {
+        padding: 6px 14px;
+    }
+
+    .input-area {
+        padding-top: 8px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
 }
